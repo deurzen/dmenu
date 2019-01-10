@@ -19,6 +19,10 @@
 #include "drw.h"
 #include "util.h"
 
+/*  ENVIRONMENT / WINDOW MANAGER CONSTANTS  */
+static const SIDEBAR_WIDTH = 12;
+static const LEMONBAR_WIDTH = 170;
+
 /* macros */
 #define INTERSECT(x,y,w,h,r)  (MAX(0, MIN((x)+(w),(r).x_org+(r).width)  - MAX((x),(r).x_org)) \
                              * MAX(0, MIN((y)+(h),(r).y_org+(r).height) - MAX((y),(r).y_org)))
@@ -709,9 +713,9 @@ setup(void)
 				if (INTERSECT(x, y, 1, 1, info[i]))
 					break;
 
-		x = info[i].x_org + 12 + 175;
+		x = info[i].x_org + SIDEBAR_WIDTH + LEMONBAR_WIDTH;
 		y = info[i].y_org + (topbar ? 0 : info[i].height - mh);
-		mw = info[i].width - 12 - 175;
+		mw = info[i].width - SIDEBAR_WIDTH - LEMONBAR_WIDTH;
 		XFree(info);
 	} else
 #endif
