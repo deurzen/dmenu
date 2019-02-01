@@ -21,6 +21,7 @@
 
 /*  ENVIRONMENT / WINDOW MANAGER CONSTANTS  */
 static const SIDEBAR_WIDTH = 12;
+static const TOPBAR_HEIGHT = 16;
 static const LEMONBAR_WIDTH = 170;
 
 /* macros */
@@ -686,7 +687,7 @@ setup(void)
 	/* calculate menu geometry */
 	bh = drw->fonts->h + 2;
 	lines = MAX(lines, 0);
-	mh = (lines + 1) * bh + 1;
+	mh = (lines + 1) * bh + 2;
 #ifdef XINERAMA
 	i = 0;
 	if (parentwin == root && (info = XineramaQueryScreens(dpy, &n))) {
