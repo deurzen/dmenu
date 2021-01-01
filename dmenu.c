@@ -22,7 +22,7 @@
 /*  ENVIRONMENT / WINDOW MANAGER CONSTANTS  */
 static const SIDEBAR_WIDTH = 12;
 static const TOPBAR_HEIGHT = 16;
-static const LEMONBAR_WIDTH = 170;
+static const LEMONBAR_WIDTH = 278;
 
 /* macros */
 #define INTERSECT(x,y,w,h,r)  (MAX(0, MIN((x)+(w),(r).x_org+(r).width)  - MAX((x),(r).x_org)) \
@@ -716,7 +716,7 @@ setup(void)
 
 		x = info[i].x_org + SIDEBAR_WIDTH + LEMONBAR_WIDTH;
 		y = info[i].y_org + (topbar ? 0 : info[i].height - mh);
-		mw = info[i].width - SIDEBAR_WIDTH - LEMONBAR_WIDTH;
+		mw = info[i].width - SIDEBAR_WIDTH - LEMONBAR_WIDTH + 1;
 		XFree(info);
 	} else
 #endif
