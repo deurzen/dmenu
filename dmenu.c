@@ -19,11 +19,6 @@
 #include "drw.h"
 #include "util.h"
 
-/*  ENVIRONMENT / WINDOW MANAGER CONSTANTS  */
-static const SIDEBAR_WIDTH = 0;
-static const TOPBAR_HEIGHT = 16;
-static const LEMONBAR_WIDTH = 0;
-
 /* macros */
 #define INTERSECT(x,y,w,h,r)  (MAX(0, MIN((x)+(w),(r).x_org+(r).width)  - MAX((x),(r).x_org)) \
                              * MAX(0, MIN((y)+(h),(r).y_org+(r).height) - MAX((y),(r).y_org)))
@@ -96,6 +91,15 @@ calcoffsets(void)
 	for (i = 0, prev = curr; prev && prev->left; prev = prev->left)
 		if ((i += (lines > 0) ? bh : MIN(TEXTW(prev->left->text), n)) > n)
 			break;
+}
+
+static int
+max_textw(void)
+{
+	int len = 0;
+	for (struct item *item = items; item && item->text; item++)
+		len = MAX(TEXTW(item->text), len);
+	return len;
 }
 
 static void
@@ -178,8 +182,11 @@ drawmenu(void)
 	recalculatenumbers();
 	if (lines > 0) {
 		/* draw vertical list */
-		for (item = curr; item != next; item = item->right)
+		/* for (item = curr; item != next; item = item->right) */
+        int i = 0;
+        for (item = curr; item != next; item = item->right, i++)
 			drawitem(item, x, y += bh, mw - x);
+        XResizeWindow(dpy, win, mw, (i + 1) * bh);
 	} else if (matches) {
 		/* draw horizontal list */
 		x += inputw;
@@ -707,8 +714,10 @@ setup(void)
 
 	/* calculate menu geometry */
 	bh = drw->fonts->h + 2;
-	lines = MAX(lines, 0);
+	lines = MAX(lines, 15);
 	mh = (lines + 1) * bh + 2;
+    promptw = (prompt && *prompt) ? TEXTW(prompt) - lrpad / 4 : 0;
+
 #ifdef XINERAMA
 	i = 0;
 	if (parentwin == root && (info = XineramaQueryScreens(dpy, &n))) {
@@ -735,9 +744,9 @@ setup(void)
 				if (INTERSECT(x, y, 1, 1, info[i]))
 					break;
 
-		x = info[i].x_org + SIDEBAR_WIDTH + LEMONBAR_WIDTH;
-		y = info[i].y_org + (topbar ? 0 : info[i].height - mh);
-		mw = info[i].width - SIDEBAR_WIDTH - LEMONBAR_WIDTH + 1;
+        mw = MIN(MAX(max_textw() + promptw, 100), info[i].width);
+		x = info[i].x_org + ((info[i].width  - mw)) + 1;
+		y = info[i].y_org;
 		XFree(info);
 	} else
 #endif
@@ -745,9 +754,10 @@ setup(void)
 		if (!XGetWindowAttributes(dpy, parentwin, &wa))
 			die("could not get embedding window attributes: 0x%lx",
 			    parentwin);
-		x = 0;
-		y = topbar ? 0 : wa.height - mh;
-		mw = wa.width;
+
+        mw = MIN(MAX(max_textw() + promptw, 100), wa.width);
+		x = (wa.width  - mw) + 1;
+		y = 0;
 	}
 	promptw = (prompt && *prompt) ? TEXTW(prompt) - lrpad / 4 : 0;
 	inputw = MIN(inputw, mw/3);
